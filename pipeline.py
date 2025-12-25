@@ -1,4 +1,5 @@
 from youtube_downloader import download_video
+from transcribe_video import transcribe_video
 
 def run_pipeline():
     """
@@ -7,13 +8,14 @@ def run_pipeline():
     """
     video_url = input("Enter YouTube video URL: ")
 
-    print("Step 1: Downloading video...")
+    print("⬇️  Downloading video...")
     download_video(video_url)
-    print("Video downloaded successfully!")
+    print("✅ Video downloaded successfully!")
 
     # Future steps:
-    # print("Step 2: Transcribing video...")
-    # transcribe_video(...)
+    transcribe_video()
+    print("✅ Transcription successfull")
+
     
     # print("Step 3: Finding highlights...")
     # extract_highlights(...)

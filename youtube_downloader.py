@@ -1,6 +1,6 @@
 from yt_dlp import YoutubeDL
 
-def download_video(url, output_path="downloads/%(title)s.%(ext)s"):
+def download_video(url, output_path="downloads/yt_video.%(ext)s"):
     """
     Downloads a single YouTube video from the provided URL.
     """
