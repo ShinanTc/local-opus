@@ -8,7 +8,8 @@ def download_video(url, output_path="downloads/yt_video.%(ext)s"):
         'outtmpl': output_path,  # Save location and file name template
         'format': 'best',        # Download best quality
         'noplaylist': True,       # Only download a single video
-        'no_warnings': True
+        'no_warnings': True,
+        'quiet': True,
     }
 
     with YoutubeDL(ydl_opts) as ydl:
