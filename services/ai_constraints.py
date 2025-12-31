@@ -20,9 +20,7 @@ def ai_should_close_buffer(buffer_text: str, next_line_text: str) -> bool:
             temperature=0
         )
         
-        # answer = response["choices"][0]["message"]["content"].strip().upper()
         answer = response.choices[0].message.content.strip().upper()
-
 
         return answer == "YES"
     except Exception as e:
