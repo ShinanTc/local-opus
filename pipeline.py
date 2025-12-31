@@ -21,4 +21,4 @@ def run_pipeline():
     print("✅ Transcription successfull")
     
     print("Step 3: Finding highlights...")
-    extract_highlights(niche)
+    extract_highlights(niche=niche)
