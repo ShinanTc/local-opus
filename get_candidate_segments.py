@@ -9,6 +9,7 @@ def get_candidate_segments(
 ) -> List[Dict]:
     """
     Groups transcript lines into candidate segments with AI semantic checking.
+    Assigns an index to each segment for ordering purposes.
     """
     line_pattern = re.compile(r"\[(\d+\.?\d*)\s*-->\s*(\d+\.?\d*)\]\s*(.+)")
     lines = []
@@ -28,6 +29,7 @@ def get_candidate_segments(
 
     segments = []
     buffer = []
+    segment_index = 0  # <-- new index counter
 
     for line in lines:
         if not buffer:
@@ -48,16 +50,19 @@ def get_candidate_segments(
             buffer.append(line)
         else:
             segments.append({
+                "index": segment_index,  # <-- assign index here
                 "start": buffer[0]["start"],
                 "end": buffer[-1]["end"],
                 "text": buffer_text,
                 "lines": buffer.copy()
             })
+            segment_index += 1  # increment index
             buffer = [line]
 
     # Flush remaining buffer
     if buffer:
         segments.append({
+            "index": segment_index,  # <-- assign index here
             "start": buffer[0]["start"],
             "end": buffer[-1]["end"],
             "text": " ".join(l["text"] for l in buffer),
