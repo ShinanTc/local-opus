@@ -2,6 +2,7 @@ from typing import List, Dict
 from get_candidate_segments import get_candidate_segments
 from score_candidate_segments import score_candidate_segments
 from select_top_segments import select_top_segments
+from compute_segment_gaps import compute_segment_gaps
 import json
 
 
@@ -27,7 +28,9 @@ def extract_highlights(
         scored_segments=scored_segments,
     )
     
-    print("SELECTED SEGMENTS ------------------------ ✅")
-    print(json.dumps(selected_segments, indent=2, sort_keys=True))
+    computed_gaps = compute_segment_gaps(selected_segments)
+    
+    print("COMPUTED GAPS ------------------------ ✅")
+    print(json.dumps(computed_gaps, indent=2, sort_keys=True))
 
     return selected_segments
