@@ -3,6 +3,7 @@ from get_candidate_segments import get_candidate_segments
 from score_candidate_segments import score_candidate_segments
 from select_top_segments import select_top_segments
 from compute_segment_gaps import compute_segment_gaps
+from identify_gap_risks import identify_gap_risks
 import json
 
 
@@ -30,8 +31,11 @@ def extract_highlights(
     
     # Step 5: compute gaps between adjacent segments
     computed_gaps = compute_segment_gaps(selected_segments)
+
+    # Step 6: identify gap risks
+    flagged_segments = identify_gap_risks(computed_gaps)
     
-    print("COMPUTED GAPS ------------------------ ✅")
-    print(json.dumps(computed_gaps, indent=2, sort_keys=True))
+    print("FLAGGED SEGMENTS ------------------------ ✅")
+    print(json.dumps(flagged_segments, indent=2, sort_keys=True))
 
     return selected_segments
