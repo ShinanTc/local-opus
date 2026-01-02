@@ -29,7 +29,7 @@ def get_candidate_segments(
 
     segments = []
     buffer = []
-    segment_index = 0  # <-- new index counter
+    segment_index = 0  # <-- index counter to identify the gap between segments after selecting segments
 
     for line in lines:
         if not buffer:
@@ -50,19 +50,19 @@ def get_candidate_segments(
             buffer.append(line)
         else:
             segments.append({
-                "index": segment_index,  # <-- assign index here
+                "index": segment_index,
                 "start": buffer[0]["start"],
                 "end": buffer[-1]["end"],
                 "text": buffer_text,
                 "lines": buffer.copy()
             })
-            segment_index += 1  # increment index
+            segment_index += 1
             buffer = [line]
 
     # Flush remaining buffer
     if buffer:
         segments.append({
-            "index": segment_index,  # <-- assign index here
+            "index": segment_index,
             "start": buffer[0]["start"],
             "end": buffer[-1]["end"],
             "text": " ".join(l["text"] for l in buffer),

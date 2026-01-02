@@ -1,7 +1,8 @@
 from typing import List, Dict
 from get_candidate_segments import get_candidate_segments
 from score_candidate_segments import score_candidate_segments
-# import json
+from select_top_segments import select_top_segments
+import json
 
 
 def extract_highlights(
@@ -9,22 +10,24 @@ def extract_highlights(
     niche: str = "travel",
 ) -> List[Dict]:
     """
-    Public method to extract scored highlight segments from a transcript.
+    Public method to extract highlight segments from a transcript.
     """
 
-    # Step 1 + 2: structural + semantic segmentation
+    # Step 1 + 2: line → buffer → candidate segments
     candidate_segments = get_candidate_segments(transcript_path)
 
-    # print("CANDIDATE SEGMENTS ------------------------ ✅")
-    # print(json.dumps(candidate_segments, indent=2, sort_keys=True))
-
-    # Step 3: intent-based scoring
+    # Step 3: score each candidate
     scored_segments = score_candidate_segments(
         candidate_segments=candidate_segments,
         niche=niche,
     )
 
-    # print("SEGMENT SCORING COMPLETED ------------------------ ✅")
-    # print(json.dumps(scored_segments, indent=2, sort_keys=True))
+    # Step 4: select best segments purely by score
+    selected_segments = select_top_segments(
+        scored_segments=scored_segments,
+    )
+    
+    print("SELECTED SEGMENTS ------------------------ ✅")
+    print(json.dumps(selected_segments, indent=2, sort_keys=True))
 
-    return scored_segments
+    return selected_segments
