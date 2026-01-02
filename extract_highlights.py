@@ -28,6 +28,7 @@ def extract_highlights(
         scored_segments=scored_segments,
     )
     
+    # Step 5: compute gaps between adjacent segments
     computed_gaps = compute_segment_gaps(selected_segments)
     
     print("COMPUTED GAPS ------------------------ ✅")
