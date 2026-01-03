@@ -8,6 +8,36 @@ from handle_gap_risks import handle_gap_risks
 from verify_continuity_with_ai import verify_continuity_with_ai
 import json
 
+MAX_HIGHLIGHT_DURATION = 60  # seconds, adjustable
+
+def merge_continuous_segments(segments: List[Dict]) -> List[Dict]:
+    """
+    Merge adjacent verified segments into longer highlights if:
+      - ai_continuous == True
+      - gap_from_previous == 1 (no risky gap)
+      - combined duration <= MAX_HIGHLIGHT_DURATION
+    """
+    if not segments:
+        return []
+
+    merged_segments = []
+    buffer = segments[0].copy()
+
+    for seg in segments[1:]:
+        can_merge = (
+            seg.get('ai_continuous', False)
+            and seg.get('gap_from_previous', 1) == 1
+            and (buffer['end'] - buffer['start'] + seg['end'] - seg['start']) <= MAX_HIGHLIGHT_DURATION
+        )
+        if can_merge:
+            buffer['end'] = seg['end']
+            buffer['text'] += " " + seg['text']
+            buffer['lines'].extend(seg['lines'])
+        else:
+            merged_segments.append(buffer)
+            buffer = seg.copy()
+    merged_segments.append(buffer)
+    return merged_segments
 
 def extract_highlights(
     transcript_path: str = "transcription.txt",
@@ -43,7 +73,10 @@ def extract_highlights(
     # Step 8: Verify continuity with AI
     verified_segments = verify_continuity_with_ai(handled_segments)
 
-    # print("HANDLED SEGMENTS ------------------------ ✅")
-    # print(json.dumps(verified_segments, indent=2, sort_keys=True))
+    # Step 9: Merge continuous verified segments
+    merged_segments = merge_continuous_segments(verified_segments)
 
-    return verified_segments
+    print("MERGED HIGHLIGHT SEGMENTS ------------------------ ✅")
+    print(json.dumps(merged_segments, indent=2, sort_keys=True))
+
+    return merged_segments
