@@ -5,6 +5,7 @@ from select_top_segments import select_top_segments
 from compute_segment_gaps import compute_segment_gaps
 from identify_gap_risks import identify_gap_risks
 from handle_gap_risks import handle_gap_risks
+from verify_continuity_with_ai import verify_continuity_with_ai
 import json
 
 
@@ -39,7 +40,10 @@ def extract_highlights(
     # Step 7: Handle gap risks
     handled_segments = handle_gap_risks(flagged_segments)
 
-    print("HANDLED SEGMENTS ------------------------ ✅")
-    print(json.dumps(handled_segments, indent=2, sort_keys=True))
+    # Step 8: Verify continuity with AI
+    verified_segments = verify_continuity_with_ai(handled_segments)
 
-    return handled_segments
+    # print("HANDLED SEGMENTS ------------------------ ✅")
+    # print(json.dumps(verified_segments, indent=2, sort_keys=True))
+
+    return verified_segments
