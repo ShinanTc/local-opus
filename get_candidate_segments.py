@@ -1,6 +1,7 @@
-import re
 from typing import List, Dict
-from services.ai_constraints import ai_should_close_buffer
+from parsing import parse_transcript_file
+from buffering import build_buffers
+from segments import buffers_to_candidate_segments
 
 def get_candidate_segments(
     transcript_path: str = "transcription.txt",
@@ -8,65 +9,14 @@ def get_candidate_segments(
     max_lines_per_segment: int = 4,
 ) -> List[Dict]:
     """
-    Groups transcript lines into candidate segments with AI semantic checking.
-    Assigns an index to each segment for ordering purposes.
+    High-level pipeline: transcript → buffers → candidate segments.
     """
-    line_pattern = re.compile(r"\[(\d+\.?\d*)\s*-->\s*(\d+\.?\d*)\]\s*(.+)")
-    lines = []
+    lines = parse_transcript_file(transcript_path)
 
-    # Parse transcript
-    with open(transcript_path, "r", encoding="utf-8") as f:
-        for raw in f:
-            match = line_pattern.match(raw.strip())
-            if not match:
-                continue
-            start, end, text = match.groups()
-            lines.append({
-                "start": float(start),
-                "end": float(end),
-                "text": text.strip()
-            })
+    buffers = build_buffers(
+        lines,
+        max_segment_duration=max_segment_duration,
+        max_lines_per_segment=max_lines_per_segment,
+    )
 
-    segments = []
-    buffer = []
-    segment_index = 0  # <-- index counter to identify the gap between segments after selecting segments
-
-    for line in lines:
-        if not buffer:
-            buffer.append(line)
-            continue
-
-        buffer_text = " ".join(l["text"] for l in buffer)
-        current_duration = line["end"] - buffer[0]["start"]
-
-        # Hard constraints
-        within_duration = current_duration <= max_segment_duration
-        within_line_limit = len(buffer) < max_lines_per_segment
-
-        # AI constraint
-        ai_close = ai_should_close_buffer(buffer_text, line["text"])
-
-        if within_duration and within_line_limit and not ai_close:
-            buffer.append(line)
-        else:
-            segments.append({
-                "index": segment_index,
-                "start": buffer[0]["start"],
-                "end": buffer[-1]["end"],
-                "text": buffer_text,
-                "lines": buffer.copy()
-            })
-            segment_index += 1
-            buffer = [line]
-
-    # Flush remaining buffer
-    if buffer:
-        segments.append({
-            "index": segment_index,
-            "start": buffer[0]["start"],
-            "end": buffer[-1]["end"],
-            "text": " ".join(l["text"] for l in buffer),
-            "lines": buffer.copy()
-        })
-
-    return segments
+    return buffers_to_candidate_segments(buffers)
