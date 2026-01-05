@@ -1,7 +1,7 @@
 from typing import List, Dict
-from parsing import parse_transcript_file
-from buffering import build_buffers
-from segments import buffers_to_candidate_segments
+from transcript.parsing import parse_transcript_file
+from transcript.buffering import build_buffers
+from transcript.segments import buffers_to_candidate_segments
 
 def get_candidate_segments(
     transcript_path: str = "transcription.txt",

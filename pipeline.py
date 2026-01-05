@@ -1,6 +1,6 @@
-from youtube_downloader import download_video
-from transcribe_video import transcribe_video
-from extract_highlights import extract_highlights
+from io_modules.youtube_downloader import download_video
+from io_modules.transcribe_video import transcribe_video
+from services.extract_highlights import extract_highlights
 
 def run_pipeline():
     """

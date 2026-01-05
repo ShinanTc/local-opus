@@ -1,11 +1,11 @@
 from typing import List, Dict
-from get_candidate_segments import get_candidate_segments
-from score_candidate_segments import score_candidate_segments
-from select_top_segments import select_top_segments
-from compute_segment_gaps import compute_segment_gaps
-from identify_gap_risks import identify_gap_risks
-from handle_gap_risks import handle_gap_risks
-from verify_continuity_with_ai import verify_continuity_with_ai
+from transcript.get_candidate_segments import get_candidate_segments
+from transcript.score_candidate_segments import score_candidate_segments
+from transcript.select_top_segments import select_top_segments
+from transcript.compute_segment_gaps import compute_segment_gaps
+from transcript.identify_gap_risks import identify_gap_risks
+from transcript.handle_gap_risks import handle_gap_risks
+from ai.verify_continuity_with_ai import verify_continuity_with_ai
 import json
 
 MAX_HIGHLIGHT_DURATION = 60  # seconds, adjustable
