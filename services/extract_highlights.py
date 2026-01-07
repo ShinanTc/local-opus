@@ -6,7 +6,7 @@ from transcript.compute_segment_gaps import compute_segment_gaps
 from transcript.identify_gap_risks import identify_gap_risks
 from transcript.handle_gap_risks import handle_gap_risks
 from ai.verify_continuity_with_ai import verify_continuity_with_ai
-# import json
+import json
 
 MAX_HIGHLIGHT_DURATION = 60  # seconds, adjustable
 

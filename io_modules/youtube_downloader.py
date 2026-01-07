@@ -1,16 +1,23 @@
+# import os
 from yt_dlp import YoutubeDL
 
 def download_video(url, output_path="downloads/yt_video.%(ext)s"):
-    """
-    Downloads a single YouTube video from the provided URL.
-    """
+    downloaded_file = None
+    
+    def post_hook(d):
+        nonlocal downloaded_file
+        if d['status'] == 'finished':
+            downloaded_file = d['filename']
+    
     ydl_opts = {
-        'outtmpl': output_path,  # Save location and file name template
-        'format': 'best',        # Download best quality
-        'noplaylist': True,       # Only download a single video
+        'outtmpl': output_path,
+        'format': 'best',
+        'noplaylist': True,
         'no_warnings': True,
         'quiet': True,
+        'progress_hooks': [post_hook],
     }
 
     with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        ydl.extract_info(url, download=True)
+        return downloaded_file
