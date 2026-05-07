@@ -3,6 +3,7 @@ from io_modules.transcribe_video import transcribe_video
 from services.extract_highlights import extract_highlights
 from services.video.extract_all_raw_clips import extract_all_raw_clips
 
+
 def run_pipeline():
     """
     Main execution pipeline:
@@ -17,20 +18,22 @@ def run_pipeline():
         "(e.g., travel, fitness, business, education): "
     )
 
-    print("⬇️  Downloading video...")
+    print("⬇️  Downloading video...", flush=True)
     video_path = download_video(video_url)
-    print("✅ Video downloaded successfully!")
+    print("✅ Video downloaded successfully!", flush=True)
 
     transcribe_video()
-    print("✅ Transcription successful")
+    print("✅ Transcription successful", flush=True)
 
-    print("Step 3: Finding highlights...")
+    print("Step 3: Finding highlights...", flush=True)
     highlights = extract_highlights(niche=niche)
-    print("✅ Highlights extracted!")
+    print("✅ Highlights extracted!", flush=True)
 
-    print("Step 4: Extracting raw video clips...")
-    
+    print("Step 4: Extracting raw video clips...", flush=True)
+
     output_dir = "raw_clips"
-    clip_paths = extract_all_raw_clips(video_path=video_path, highlights=highlights, out_dir=output_dir)
+    clip_paths = extract_all_raw_clips(
+        video_path=video_path, highlights=highlights, out_dir=output_dir
+    )
 
-    print(f"✅ Extracted {len(clip_paths)} raw clips to {output_dir}")
+    print(f"✅ Extracted {len(clip_paths)} raw clips to {output_dir}", flush=True)
