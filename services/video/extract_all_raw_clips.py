@@ -1,6 +1,5 @@
 import os
 from typing import List, Dict
-# from services.video import extract_raw_clip
 from services.video.extract_raw_clip import extract_raw_clip
 
 def extract_all_raw_clips(
@@ -18,13 +17,18 @@ def extract_all_raw_clips(
 
     Returns:
         List[str]: List of paths to extracted clips.
-    
+
     Behavior:
         - Uses deterministic filenames: "{start_ms}_{end_ms}.mp4"
         - Calls `extract_raw_clip` for each highlight.
     """
+    video_path = os.path.abspath(video_path)
+    out_dir = os.path.abspath(out_dir)
+
     os.makedirs(out_dir, exist_ok=True)
     clip_paths = []
+
+    print("Right before for loop")
 
     for h in highlights:
         start_ms = int(h["start"] * 1000)
@@ -41,5 +45,7 @@ def extract_all_raw_clips(
         )
 
         clip_paths.append(output_path)
+
+    print("After for loop")
 
     return clip_paths

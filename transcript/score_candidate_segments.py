@@ -1,4 +1,5 @@
 from typing import List, Dict
+from ai.score_segments_batch import score_segments_batch
 
 
 def score_candidate_segments(
@@ -6,90 +7,51 @@ def score_candidate_segments(
     niche: str,
 ) -> List[Dict]:
     """
-    Scores each candidate segment based on alignment with the given niche / intent.
-
-    Each segment is expected to have:
-        - start
-        - end
-        - text
+    Scores each candidate segment using structural features + AI alignment.
+    Returns segments sorted by final_score descending.
     """
+    if not candidate_segments:
+        return []
 
-    # ---- Step 3A: Build intent lens (single AI call conceptually) ----
-    intent_lens = build_intent_lens(niche)
+    intent_lens = _build_intent_lens(niche)
+    texts = [seg["text"] for seg in candidate_segments]
+    ai_results = score_segments_batch(texts, intent_lens)
 
-    scored_segments = []
-
-    for segment in candidate_segments:
-        # ---- Step 3B: cheap deterministic features ----
-        structural_score = compute_structural_score(segment)
-
-        # ---- Step 3C: AI intent-alignment scoring ----
-        alignment_score, alignment_reason = score_intent_alignment(
-            segment_text=segment["text"],
-            intent_lens=intent_lens,
-        )
-
-        # ---- Step 3D: final weighted score ----
-        final_score = (
-            0.4 * alignment_score +
-            0.6 * structural_score
-        )
-
-        scored_segments.append({
-            **segment,
+    scored = []
+    for seg, (alignment_score, alignment_reason) in zip(candidate_segments, ai_results):
+        structural_score = _compute_structural_score(seg)
+        final_score = round(0.4 * alignment_score + 0.6 * structural_score, 3)
+        scored.append({
+            **seg,
             "alignment_score": alignment_score,
             "structural_score": structural_score,
-            "final_score": round(final_score, 3),
+            "final_score": final_score,
             "alignment_reason": alignment_reason,
         })
 
-    # Higher score = better highlight candidate
-    scored_segments.sort(key=lambda x: x["final_score"], reverse=True)
-
-    return scored_segments
+    scored.sort(key=lambda x: x["final_score"], reverse=True)
+    return scored
 
 
-# ----------------- helpers -----------------
-
-
-def build_intent_lens(niche: str) -> Dict:
+def _build_intent_lens(niche: str) -> Dict:
     """
-    Conceptual placeholder.
-    In reality, this is where a SINGLE AI call would define the intent.
+    Builds the intent context passed to AI for alignment scoring.
+    Single source of truth for what makes a good highlight in this niche.
     """
     return {
         "niche": niche,
-        "definition": f"Segments valuable for {niche} audience",
+        "definition": f"Segments that are genuinely valuable and insightful for a {niche} audience",
     }
 
 
-def compute_structural_score(segment: Dict) -> float:
+def _compute_structural_score(segment: Dict) -> float:
     """
-    Cheap, deterministic quality score (0–1).
+    Cheap deterministic quality signal based on segment duration (0–1).
+    Penalises clips that are too short or excessively long.
     """
     duration = segment["end"] - segment["start"]
-
     if duration < 3:
         return 0.2
     if duration > 60:
         return 0.3
-
     return 0.8
-
-
-def score_intent_alignment(
-    segment_text: str,
-    intent_lens: Dict,
-) -> tuple[float, str]:
-    """
-    This is the ONLY place where AI should be used.
-    Returns a normalized score (0–1) and a short explanation.
-    """
-
-    # Placeholder for GROQ / LLaMA call
-    # The model should ONLY judge alignment, nothing else
-
-    score = 0.7  # mock value
-    reason = "Expresses a clear idea aligned with the chosen intent."
-
-    return score, reason

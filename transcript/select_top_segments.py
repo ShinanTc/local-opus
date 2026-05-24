@@ -1,28 +1,39 @@
 from typing import List, Dict
 
+MAX_HIGHLIGHTS = 6
+MIN_GAP_SECONDS = 45.0
+MIN_FINAL_SCORE = 0.45
 
-def select_top_segments(
-    scored_segments: List[Dict],
-    top_k: int = 5,
-    min_final_score: float = 0.0,
-) -> List[Dict]:
+
+def select_top_segments(scored_segments: List[Dict]) -> List[Dict]:
     """
-    Selects the best highlight candidates purely based on final_score.
+    Picks the best highlights with enforced temporal diversity.
 
-    No ordering, no gap checks, no AI.
+    Strategy:
+      1. Filter out low-quality segments below MIN_FINAL_SCORE.
+      2. Iterate score-ranked segments (best first).
+      3. Greedily accept a segment only if it is at least MIN_GAP_SECONDS
+         away from every already-accepted segment.
+      4. Return the final selection sorted chronologically.
+
+    This prevents the common failure mode of selecting 5–6 adjacent
+    clips that all cover the same scene or topic.
     """
-
     if not scored_segments:
         return []
 
-    # Filter by minimum score if needed
-    filtered = [
-        seg for seg in scored_segments
-        if seg.get("final_score", 0) >= min_final_score
-    ]
+    qualified = [s for s in scored_segments if s.get("final_score", 0) >= MIN_FINAL_SCORE]
+    ranked = sorted(qualified, key=lambda s: s["final_score"], reverse=True)
 
-    # Sort by final_score (descending)
-    filtered.sort(key=lambda x: x.get("final_score", 0), reverse=True)
+    selected: List[Dict] = []
+    for seg in ranked:
+        if len(selected) >= MAX_HIGHLIGHTS:
+            break
+        too_close = any(
+            abs(seg["start"] - chosen["start"]) < MIN_GAP_SECONDS
+            for chosen in selected
+        )
+        if not too_close:
+            selected.append(seg)
 
-    # Pick top K
-    return filtered[:top_k]
+    return sorted(selected, key=lambda s: s["start"])
