@@ -8,8 +8,9 @@ def transcribe_video(
 ):
     """
     Transcribes a video using faster-whisper and saves the output to a file.
+    Uses word-level timestamps to get the true start of speech per segment,
+    avoiding Whisper's known behavior of anchoring the first segment to 0.0.
     """
-
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video file not found: {video_path}")
 
@@ -24,15 +25,19 @@ def transcribe_video(
     segments, info = model.transcribe(
         video_path,
         beam_size=5,
-        language="en"          # remove if auto-detection is needed
+        language="en",
+        word_timestamps=True
     )
 
     with open(output_file, "w", encoding="utf-8") as f:
         for segment in segments:
-            start = round(segment.start, 2)
-            end = round(segment.end, 2)
+            if segment.words:
+                start = round(segment.words[0].start, 2)
+                end = round(segment.words[-1].end, 2)
+            else:
+                start = round(segment.start, 2)
+                end = round(segment.end, 2)
             text = segment.text.strip()
-
             f.write(f"[{start} --> {end}] {text}\n")
 
     print(f"Transcription saved to {output_file}")
