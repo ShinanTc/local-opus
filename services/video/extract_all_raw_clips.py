@@ -28,8 +28,6 @@ def extract_all_raw_clips(
     os.makedirs(out_dir, exist_ok=True)
     clip_paths = []
 
-    print("Right before for loop")
-
     for h in highlights:
         start_ms = int(h["start"] * 1000)
         end_ms = int(h["end"] * 1000)
@@ -45,7 +43,5 @@ def extract_all_raw_clips(
         )
 
         clip_paths.append(output_path)
-
-    print("After for loop")
 
     return clip_paths
