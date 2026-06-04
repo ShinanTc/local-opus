@@ -5,6 +5,7 @@ __pycache__
 *.txt
 raw_clips
 vertical_clips
+final_clips
 
 # might need this in the future
 # sort_segments_by_index.py
