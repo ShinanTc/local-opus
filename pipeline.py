@@ -2,18 +2,11 @@ import os
 from io_modules.transcribe_video import transcribe_video
 from services.extract_highlights import extract_highlights
 from services.video.extract_all_raw_clips import extract_all_raw_clips
-from services.video.reformat_all_clips import reformat_all_clips
+from services.video.collect_slide_timestamps import collect_slide_timestamps
+from services.video.apply_slide_fills import apply_slide_fills
 
 
 def run_pipeline():
-    """
-    Main execution pipeline:
-    1. Download (skipped for now)
-    2. Transcribe
-    3. Highlight extraction
-    4. Raw video clip extraction
-    5. Hard crop to 9:16 vertical
-    """
     niche = input(
         "What niche should the highlights focus on? "
         "(e.g., travel, fitness, business, education): "
@@ -41,10 +34,11 @@ def run_pipeline():
     )
     print(f"✅ Extracted {len(clip_paths)} raw clips", flush=True)
 
-    print("Step 5: Cropping clips to vertical 9:16...", flush=True)
-    vertical_dir = os.path.abspath("vertical_clips")
-    vertical_paths = reformat_all_clips(
-        clip_paths=clip_paths,
-        out_dir=vertical_dir,
-    )
-    print(f"✅ {len(vertical_paths)} vertical clips saved to {vertical_dir}", flush=True)
+    print("Step 5: Collecting slide timestamps...", flush=True)
+    slide_map = collect_slide_timestamps(clip_paths)
+    print("✅ Slide timestamps collected!", flush=True)
+
+    print("Step 6: Cropping to 9:16 and applying slide fills...", flush=True)
+    final_dir = os.path.abspath("final_clips")
+    final_paths = apply_slide_fills(clip_paths, slide_map, final_dir)
+    print(f"✅ {len(final_paths)} final clips saved to {final_dir}", flush=True)
