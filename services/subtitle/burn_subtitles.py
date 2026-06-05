@@ -8,7 +8,7 @@ from typing import List, Dict
 
 # ── Visual constants ────────────────────────────────────────────────────────
 FONT_NAME       = "Arial"
-FONT_SIZE       = 18        # ASS font size (points, not pixels — 18 ≈ large on 1080x1920)
+FONT_SIZE       = 72        # ASS font size — 72 renders clearly on 1080x1920 vertical video
 BOTTOM_MARGIN   = 120       # pixels from bottom (MarginV in ASS)
 MAX_LINE_CHARS  = 28        # soft-wrap threshold
 
