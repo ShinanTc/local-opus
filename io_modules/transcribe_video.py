@@ -1,5 +1,7 @@
 from faster_whisper import WhisperModel
 import os
+import json
+
 
 def transcribe_video(
     video_path: str = "downloads/yt_video.mp4",
@@ -7,7 +9,10 @@ def transcribe_video(
     model_size: str = "small"
 ):
     """
-    Transcribes a video using faster-whisper and saves the output to a file.
+    Transcribes a video using faster-whisper and saves:
+      - transcription.txt  : human-readable [start --> end] segments
+      - transcription.json : full word-level timestamps for karaoke subtitles
+
     Uses word-level timestamps to get the true start of speech per segment,
     avoiding Whisper's known behavior of anchoring the first segment to 0.0.
     """
@@ -29,15 +34,40 @@ def transcribe_video(
         word_timestamps=True
     )
 
+    json_output_file = os.path.splitext(output_file)[0] + ".json"
+    segment_data = []
+
     with open(output_file, "w", encoding="utf-8") as f:
         for segment in segments:
             if segment.words:
                 start = round(segment.words[0].start, 2)
-                end = round(segment.words[-1].end, 2)
+                end   = round(segment.words[-1].end, 2)
             else:
                 start = round(segment.start, 2)
-                end = round(segment.end, 2)
+                end   = round(segment.end, 2)
+
             text = segment.text.strip()
             f.write(f"[{start} --> {end}] {text}\n")
 
-    print(f"Transcription saved to {output_file}")
+            # Build word list — fall back gracefully if words are missing
+            words = []
+            if segment.words:
+                for w in segment.words:
+                    words.append({
+                        "word":  w.word.strip(),
+                        "start": round(w.start, 3),
+                        "end":   round(w.end,   3),
+                    })
+
+            segment_data.append({
+                "start": start,
+                "end":   end,
+                "text":  text,
+                "words": words,
+            })
+
+    with open(json_output_file, "w", encoding="utf-8") as jf:
+        json.dump(segment_data, jf, indent=2, ensure_ascii=False)
+
+    print(f"✅ Transcription saved to {output_file}")
+    print(f"✅ Word-level JSON saved to {json_output_file}")

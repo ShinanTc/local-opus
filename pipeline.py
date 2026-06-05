@@ -5,6 +5,9 @@ from services.extract_highlights import extract_highlights
 from services.video.extract_all_raw_clips import extract_all_raw_clips
 from services.video.collect_slide_timestamps import collect_slide_timestamps
 from services.video.apply_slide_fills import apply_slide_fills
+from services.subtitle.parse_transcript import parse_transcript
+from services.subtitle.get_clip_words import get_clip_words
+from services.subtitle.burn_subtitles import burn_subtitles
 
 
 def _fmt(seconds: float) -> str:
@@ -29,7 +32,10 @@ def run_pipeline():
     pipeline_start = time.time()
 
     t = time.time()
-    transcribe_video()
+    transcribe_video(
+        video_path=video_path,
+        output_file=os.path.abspath("transcription.txt"),
+    )
     print(f"✅ Transcription successful ({_fmt(time.time() - t)})", flush=True)
 
     print("Step 3: Finding highlights...", flush=True)
@@ -55,5 +61,16 @@ def run_pipeline():
     t = time.time()
     final_paths = apply_slide_fills(clip_paths, slide_map, final_dir)
     print(f"✅ {len(final_paths)} final clips saved to {final_dir} ({_fmt(time.time() - t)})", flush=True)
+
+    print("Step 7: Burning karaoke subtitles...", flush=True)
+    t = time.time()
+    segments = parse_transcript(os.path.abspath("transcription.json"))
+    clip_words_map = {
+        fp: get_clip_words(fp, segments)
+        for fp in final_paths
+    }
+    subtitled_dir = os.path.abspath("subtitled_clips")
+    subtitled_paths = burn_subtitles(final_paths, clip_words_map, subtitled_dir)
+    print(f"✅ {len(subtitled_paths)} subtitled clips saved to {subtitled_dir} ({_fmt(time.time() - t)})", flush=True)
 
     print(f"\n⏱  Total pipeline time: {_fmt(time.time() - pipeline_start)}", flush=True)
