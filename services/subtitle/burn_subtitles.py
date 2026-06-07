@@ -7,14 +7,14 @@ from typing import List, Dict
 
 
 # ── Visual constants ────────────────────────────────────────────────────────
-FONT_NAME       = "Arial"
+FONT_NAME       = "Inter Black"
 FONT_SIZE       = 72        # ASS font size — 72 renders clearly on 1080x1920 vertical video
 BOTTOM_MARGIN   = 120       # pixels from bottom (MarginV in ASS)
 MAX_LINE_CHARS  = 28        # soft-wrap threshold
 
 # Colours — ASS uses &HAABBGGRR (alpha, blue, green, red)
-COLOR_DIM       = "&H44FFFFFF"   # dim white,  alpha=0x44
-COLOR_HIGHLIGHT = "&H0034E2FF"   # vivid yellow &H00BBGGRR → yellow = R=FF G=E2 B=34
+COLOR_DIM       = "&H0090EE90"   # light green — inactive words
+COLOR_HIGHLIGHT = "&H00FFFFFF"   # white — active/highlighted word
 COLOR_OUTLINE   = "&H99000000"   # dark outline for readability
 
 
@@ -79,7 +79,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,{FONT_NAME},{FONT_SIZE},{COLOR_DIM},&H000000FF,{COLOR_OUTLINE},&HCC000000,-1,0,0,0,100,100,0,0,1,2,1,2,20,20,{BOTTOM_MARGIN},1
+Style: Default,{FONT_NAME},{FONT_SIZE},{COLOR_DIM},{COLOR_HIGHLIGHT},{COLOR_OUTLINE},&HCC000000,-1,0,0,0,100,100,0,0,1,2,1,2,20,20,{BOTTOM_MARGIN},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -116,7 +116,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             escaped = _ass_escape(raw_word)
             # Highlight this word during its window, then revert to dim
             kar_parts.append(
-                f"{{\\c{COLOR_HIGHLIGHT}}}{escaped}{{\\k{dur_cs}}}{{\\c{COLOR_DIM}}}"
+                f"{{\\kf{dur_cs}}}{escaped}"
             )
 
         kar_text = " ".join(kar_parts)
